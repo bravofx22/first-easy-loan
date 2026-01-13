@@ -1,0 +1,70 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+.header {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #020617;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 2.5em;
+}
+
+.nav {
+  display: flex;
+  justify-content: center;
+  background-color: #020617;
+  padding: 10px;
+}
+
+.nav a {
+  color: #e5e7eb;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+.hero {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+.hero button {
+  padding: 12px 25px;
+  font-size: 16px;
+  background-color: #2563eb;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.services {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 40px 20px;
+}
+
+.card {
+  background-color: #020617;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.footer {
+  text-align: center;
+  padding: 15px;
+  background-color: #020617;
+  font-size: 14px;
+}
