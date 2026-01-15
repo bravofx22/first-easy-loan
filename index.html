@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <title>First Easy Loan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Link to CSS file -->
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <!-- Login & Register Form -->
+  <!-- Login/Register -->
   <div id="auth-box">
     <h1>First Easy Loan</h1>
     <h2>User Access</h2>
@@ -22,22 +23,69 @@
     <p id="auth-msg"></p>
   </div>
 
-  <!-- Dashboard (hidden until login) -->
+  <!-- Dashboard -->
   <div id="dashboard" style="display:none;">
     <h2>Welcome 👋</h2>
-    <h3>Loan Calculator</h3>
-    <input type="number" id="loan-amount" placeholder="Loan amount">
-    <input type="number" id="interest-rate" placeholder="Interest %" value="5">
-    <input type="number" id="months" placeholder="Months" value="6">
-    <button onclick="calculateLoan()">Calculate</button>
-    <p id="loan-result"></p>
-    <button class="logout" onclick="logout()">Logout</button>
+    <div class="tabs">
+      <button class="tab-button active" onclick="showTab('home')">Home</button>
+      <button class="tab-button" onclick="showTab('jobs')">Jobs</button>
+      <button class="tab-button" onclick="showTab('surveys')">Surveys</button>
+      <button class="tab-button" onclick="showTab('profile')">Profile</button>
+    </div>
+
+    <!-- Home -->
+    <div id="home" class="tab-content">
+      <h3>Loan Calculator</h3>
+      <input type="number" id="loan-amount" placeholder="Loan amount">
+      <input type="number" id="interest-rate" placeholder="Interest % (monthly)" value="5">
+      <input type="number" id="months" placeholder="Months" value="6">
+      <button onclick="calculateLoan()">Calculate</button>
+      <p id="loan-result"></p>
+      <h4>Loan History</h4>
+      <div id="loan-history"></div>
+    </div>
+
+    <!-- Jobs -->
+    <div id="jobs" class="tab-content" style="display:none;">
+      <h3>Available Jobs</h3>
+      <div id="job-list"></div>
+      <h4>Apply for a Job</h4>
+      <input type="text" id="job-name" placeholder="Your Name">
+      <input type="email" id="job-email" placeholder="Your Email">
+      <select id="job-selected">
+        <option value="">Select Job</option>
+      </select>
+      <button class="apply" onclick="applyJob()">Apply</button>
+      <p id="job-msg"></p>
+    </div>
+
+    <!-- Surveys -->
+    <div id="surveys" class="tab-content" style="display:none;">
+      <h3>Surveys</h3>
+      <div id="survey-list"></div>
+      <h4>Submit Survey Response</h4>
+      <input type="text" id="survey-response" placeholder="Your Response">
+      <button class="submit" onclick="submitSurvey()">Submit</button>
+      <p id="survey-msg"></p>
+      <h4>Survey Summary</h4>
+      <canvas id="surveyChart"></canvas>
+    </div>
+
+    <!-- Profile -->
+    <div id="profile" class="tab-content" style="display:none;">
+      <h3>Your Profile</h3>
+      <p>Email: <span id="user-email"></span></p>
+      <p>Jobs Applied: <span id="jobs-count">0</span></p>
+      <p>Surveys Submitted: <span id="surveys-count">0</span></p>
+      <button class="logout" onclick="logout()">Logout</button>
+    </div>
   </div>
 
-  <!-- Firebase SDK (v10 CDN) -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "YOUR_REAL_API_KEY",
@@ -50,7 +98,9 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
+    // REGISTER
     window.register = () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -59,6 +109,7 @@
         .catch(e => document.getElementById("auth-msg").innerText = e.message);
     }
 
+    // LOGIN
     window.login = () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
@@ -67,33 +118,135 @@
         .catch(e => document.getElementById("auth-msg").innerText = e.message);
     }
 
+    // LOGOUT
     window.logout = () => signOut(auth);
 
-    onAuthStateChanged(auth, (user) => {
-      if(user){
+    // TABS
+    window.showTab = (tabName) => {
+      const tabs = document.querySelectorAll('.tab-content');
+      const buttons = document.querySelectorAll('.tab-button');
+      tabs.forEach(t => t.style.display = 'none');
+      buttons.forEach(b => b.classList.remove('active'));
+      document.getElementById(tabName).style.display = 'block';
+      document.querySelector(`.tab-button[onclick="showTab('${tabName}')"]`).classList.add('active');
+    }
+
+    // LOAN CALCULATOR + HISTORY
+    window.calculateLoan = async () => {
+      const amount = parseFloat(document.getElementById("loan-amount").value);
+      const interest = parseFloat(document.getElementById("interest-rate").value);
+      const months = parseInt(document.getElementById("months").value);
+      if (!amount || !interest || !months) { document.getElementById("loan-result").innerText = "Enter valid numbers"; return; }
+      const total = amount + (amount * interest / 100 * months);
+      const monthly = total / months;
+      document.getElementById("loan-result").innerText = `Total: ₦${total.toFixed(2)} | Monthly: ₦${monthly.toFixed(2)}`;
+      await addDoc(collection(db, "loanHistory"), { email: auth.currentUser.email, amount, interest, months, total, monthly });
+      loadLoanHistory();
+    }
+
+    async function loadLoanHistory() {
+      const email = auth.currentUser.email;
+      const snapshot = await getDocs(query(collection(db, "loanHistory"), where("email", "==", email)));
+      const historyDiv = document.getElementById("loan-history");
+      historyDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "job-card";
+        div.innerText = `Amount: ₦${data.amount}, Interest: ${data.interest}%, Months: ${data.months}, Total: ₦${data.total.toFixed(2)}, Monthly: ₦${data.monthly.toFixed(2)}`;
+        historyDiv.appendChild(div);
+      });
+    }
+
+    // JOBS
+    window.applyJob = async () => {
+      const name = document.getElementById("job-name").value;
+      const email = document.getElementById("job-email").value;
+      const job = document.getElementById("job-selected").value;
+      if (!name || !email || !job) { document.getElementById("job-msg").innerText = "Please fill all fields"; return; }
+      await addDoc(collection(db, "jobApplications"), { name, email, job });
+      document.getElementById("job-msg").innerText = "Application submitted ✓";
+      document.getElementById("job-name").value = "";
+      document.getElementById("job-email").value = "";
+      document.getElementById("job-selected").value = "";
+      updateCounts();
+    }
+
+    // SURVEYS
+    window.submitSurvey = async () => {
+      const response = document.getElementById("survey-response").value;
+      if (!response) { document.getElementById("survey-msg").innerText = "Enter your response"; return; }
+      await addDoc(collection(db, "surveyResponses"), { email: auth.currentUser.email, response });
+      document.getElementById("survey-msg").innerText = "Survey submitted ✓";
+      document.getElementById("survey-response").value = "";
+      updateCounts();
+      updateSurveyChart();
+    }
+
+    async function updateCounts() {
+      const email = auth.currentUser.email;
+      const jobsSnap = await getDocs(query(collection(db, "jobApplications"), where("email", "==", email)));
+      document.getElementById("jobs-count").innerText = jobsSnap.size;
+      const surveysSnap = await getDocs(query(collection(db, "surveyResponses"), where("email", "==", email)));
+      document.getElementById("surveys-count").innerText = surveysSnap.size;
+    }
+
+    async function updateSurveyChart() {
+      const email = auth.currentUser.email;
+      const snapshot = await getDocs(query(collection(db, "surveyResponses"), where("email", "==", email)));
+      const responses = snapshot.docs.map(doc => doc.data().response);
+      const counts = {};
+      responses.forEach(r => counts[r] = (counts[r] || 0) + 1);
+      const ctx = document.getElementById('surveyChart').getContext('2d');
+      if (window.surveyChart) window.surveyChart.destroy();
+      window.surveyChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: Object.keys(counts), datasets: [{ label: 'Responses', data: Object.values(counts), backgroundColor: '#10b981' }] },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+      });
+    }
+
+    // AUTH STATE
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
         document.getElementById("auth-box").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
+        document.getElementById("user-email").innerText = user.email;
+
+        // Load dynamic jobs
+        const jobSnap = await getDocs(collection(db, "jobs"));
+        const jobList = document.getElementById("job-list");
+        const jobSelect = document.getElementById("job-selected");
+        jobList.innerHTML = ""; jobSelect.innerHTML = '<option value="">Select Job</option>';
+        jobSnap.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement("div");
+          div.className = "job-card"; div.innerText = data.title;
+          jobList.appendChild(div);
+          const opt = document.createElement("option");
+          opt.value = data.title; opt.innerText = data.title;
+          jobSelect.appendChild(opt);
+        });
+
+        // Load dynamic surveys
+        const surveys = ["Customer Satisfaction Survey", "Loan Feedback Survey"];
+        const surveyList = document.getElementById("survey-list");
+        surveyList.innerHTML = "";
+        surveys.forEach(s => {
+          const div = document.createElement("div");
+          div.className = "survey-card"; div.innerText = s;
+          surveyList.appendChild(div);
+        });
+
+        await updateCounts();
+        await loadLoanHistory();
+        updateSurveyChart();
+
       } else {
         document.getElementById("auth-box").style.display = "block";
         document.getElementById("dashboard").style.display = "none";
       }
     });
-
-    window.calculateLoan = () => {
-      const amount = parseFloat(document.getElementById("loan-amount").value);
-      const interest = parseFloat(document.getElementById("interest-rate").value);
-      const months = parseInt(document.getElementById("months").value);
-
-      if(!amount || !interest || !months){
-        document.getElementById("loan-result").innerText = "Enter valid numbers";
-        return;
-      }
-
-      const total = amount + (amount * interest/100 * months);
-      const monthly = total / months;
-
-      document.getElementById("loan-result").innerText = `Total: ₦${total.toFixed(2)} | Monthly: ₦${monthly.toFixed(2)}`;
-    }
   </script>
 
 </body>
