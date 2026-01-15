@@ -4,182 +4,191 @@
   <meta charset="UTF-8">
   <title>First Easy Loan</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    #auth-box, #dashboard {
+      background-color: #1e293b;
+      padding: 30px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 20px;
+      color: #10b981; /* green accent */
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 0;
+      margin: 10px 5px 0 5px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    button.login {
+      background-color: #2563eb;
+      color: #fff;
+      width: 48%;
+    }
+
+    button.register {
+      background-color: #10b981;
+      color: #fff;
+      width: 48%;
+    }
+
+    button.logout {
+      background-color: #ef4444;
+      color: #fff;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    #auth-msg {
+      margin-top: 10px;
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    #loan-result {
+      margin-top: 12px;
+      font-weight: 600;
+      color: #f0fdf4;
+    }
+  </style>
 </head>
-<body></div>
-  <h2>User Access</h2>
+<body>
 
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
-
-  <button onclick="register()">Register</button>
-  <button onclick="login()">Login</button>
-
-  <p id="auth-msg"></p>
-</div>
-
-<div id="dashboard" style="display:none;">
-  <h2>Welcome 👋</h2>
-<p>You are logged in.</p>
-
-<h3>Loan Calculator</h3>
-<input type="number" id="loan-amount" placeholder="Enter loan amount" />
-<input type="number" id="interest-rate" placeholder="Interest % (monthly)" value="5" />
-<input type="number" id="months" placeholder="Repayment months" value="6" />
-<button onclick="calculateLoan()">Calculate</button>
-
-<p id="loan-result"></p>
-
-<button onclick="logout()">Logout</button>
-</div>
-  <h2>User Access</h2>
-
-  <input type="email" id="email" placeholder="Email" required />
-  <input type="password" id="password" placeholder="Password" required />
-
-  <button onclick="register()">Register</button>
-  <button onclick="login()">Login</button>
-
-  <p id="auth-msg"></p>
-  <header class="header">
+  <!-- LOGIN + REGISTER BOX -->
+  <div id="auth-box">
     <h1>First Easy Loan</h1>
-    <p>Jobs • Career Growth • Surveys • Loan Information</p>
-  </header>
-
-  <nav class="nav">
-    <a href="#">Home</a>
-    <a href="#">Jobs</a>
-    <a href="#">Loans</a>
-    <a href="#">Career</a>
-    <a href="#">Surveys</a>
-  </nav>
-
-  <section class="hero">
-    <h2>Trusted Career & Loan Information Platform</h2>
-    <p>
-      Access job opportunities, career guidance, surveys, and loan eligibility tools
-      designed to help you make informed financial decisions.
-    </p>
-    <button>Check Loan Eligibility</button>
-  </section>
-
-  <section class="services">
-    <div class="card">
-      <h3>Job Search</h3>
-      <p>Browse verified job opportunities across multiple industries.</p>
+    <h2>User Access</h2>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <div>
+      <button class="register" onclick="register()">Register</button>
+      <button class="login" onclick="login()">Login</button>
     </div>
+    <p id="auth-msg"></p>
+  </div>
 
-    <div class="card">
-      <h3>Loan Tools</h3>
-      <p>Use our calculators and eligibility checks before applying.</p>
-    </div>
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none;">
+    <h2>Welcome 👋</h2>
 
-    <div class="card">
-      <h3>Career Building</h3>
-      <p>Get professional guidance to grow your career successfully.</p>
-    </div>
+    <h3>Loan Calculator</h3>
+    <input type="number" id="loan-amount" placeholder="Enter loan amount">
+    <input type="number" id="interest-rate" placeholder="Interest % (monthly)" value="5">
+    <input type="number" id="months" placeholder="Months (e.g., 6)" value="6">
+    <button onclick="calculateLoan()">Calculate</button>
+    <p id="loan-result"></p>
 
-    <div class="card">
-      <h3>Surveys</h3>
-      <p>Participate in surveys that help improve financial services.</p>
-    </div>
-  </section>
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
 
-  <footer class="footer">
-    <p>© 2026 First Easy Loan. All rights reserved.</p>
-  </footer>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  <!-- Firebase SDKs (CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
 
-  const firebaseConfig = {
-    apiKey: "AIza....",
-    authDomain: "first-easy-loan.firebaseapp.com",
-    projectId: "first-easy-loan",
-    storageBucket: "first-easy-loan.appspot.com",
-    messagingSenderId: "635206804530",
-    appId: "1:635206804530:web:57a4b9f55514",
-  };
+  <!-- Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "YOUR_REAL_API_KEY",
+      authDomain: "first-easy-loan.firebaseapp.com",
+      projectId: "first-easy-loan",
+      storageBucket: "first-easy-loan.appspot.com",
+      messagingSenderId: "YOUR_REAL_SENDER_ID",
+      appId: "YOUR_REAL_APP_ID"
+    };
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+  </script>
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+  <!-- Auth + Loan Logic -->
+  <script>
+    // REGISTER
+    function register() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(() => document.getElementById("auth-msg").innerText = "Registration successful ✓")
+        .catch(e => document.getElementById("auth-msg").innerText = e.message);
+    }
 
-  // REGISTER
-  window.register = function () {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    // LOGIN
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => document.getElementById("auth-msg").innerText = "Login successful ✓")
+        .catch(e => document.getElementById("auth-msg").innerText = e.message);
+    }
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => alert("Registration successful"))
-      .catch(err => alert(err.message));
-  };
+    // LOGOUT
+    function logout() {
+      auth.signOut();
+    }
 
-  // LOGIN
-  window.login = function () {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    // AUTH STATE CHANGED
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        document.getElementById("auth-box").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+      } else {
+        document.getElementById("dashboard").style.display = "none";
+        document.getElementById("auth-box").style.display = "block";
+      }
+    });
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => alert("Login successful"))
-      .catch(err => alert(err.message));
-  };
-</script>
+    // LOAN CALCULATION
+    function calculateLoan() {
+      const amount = parseFloat(document.getElementById("loan-amount").value);
+      const interest = parseFloat(document.getElementById("interest-rate").value);
+      const months = parseInt(document.getElementById("months").value);
+
+      if (!amount || !interest || !months) {
+        document.getElementById("loan-result").innerText = "Please enter valid numbers.";
+        return;
+      }
+
+      const total = amount + (amount * interest / 100 * months);
+      const monthly = total / months;
+
+      document.getElementById("loan-result").innerText =
+        `Total: ₦${total.toFixed(2)} | Monthly: ₦${monthly.toFixed(2)}`;
+    }
+  </script>
+
 </body>
 </html>
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-
-  const firebaseConfig = {
-    apiKey: "AIza...",
-    authDomain: "first-easy-loan.firebaseapp.com",
-    projectId: "first-easy-loan",
-    storageBucket: "first-easy-loan.appspot.com",
-    messagingSenderId: "635206804530",
-    appId: "1:635206804530:web:57a4b9f55514",
-    measurementId: "G-PX5P11H0RE"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-</script>
-<script>
-  function register() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    auth.createUserWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById("auth-msg").innerText = "Registration successful!";
-      })
-      .catch(error => {
-        document.getElementById("auth-msg").innerText = error.message;
-      });
-  }
-
-  function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    auth.signInWithEmailAndPassword(email, password)
-      .then(() => {
-        document.getElementById("auth-msg").innerText = "Login successful!";
-      })
-      .catch(error => {
-        document.getElementById("auth-msg").innerText = error.message;
-      });
-  }
-
-  function logout() {
-    auth.signOut();
-  }
-
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      document.getElementById("auth-box").style.display = "none";
-      document.getElementById("dashboard").style.display = "block";
-    } else {
-      document.getElementById("auth-box").style.display = "block";
-      document.getElementById("dashboard").style.display = "none";
-    }
-  });
-</script>
