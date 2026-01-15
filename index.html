@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
-<body><div id="auth-box">
+<body></div>
   <h2>User Access</h2>
 
   <input type="email" id="email" placeholder="Email" />
@@ -20,10 +20,18 @@
 
 <div id="dashboard" style="display:none;">
   <h2>Welcome 👋</h2>
-  <p>You are logged in.</p>
-  <button onclick="logout()">Logout</button>
+<p>You are logged in.</p>
+
+<h3>Loan Calculator</h3>
+<input type="number" id="loan-amount" placeholder="Enter loan amount" />
+<input type="number" id="interest-rate" placeholder="Interest % (monthly)" value="5" />
+<input type="number" id="months" placeholder="Repayment months" value="6" />
+<button onclick="calculateLoan()">Calculate</button>
+
+<p id="loan-result"></p>
+
+<button onclick="logout()">Logout</button>
 </div>
-<div id="auth-box">
   <h2>User Access</h2>
 
   <input type="email" id="email" placeholder="Email" required />
